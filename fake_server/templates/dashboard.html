@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
+</head>
+
+<body>
+<div class="app-shell">
+    <aside class="sidebar">
+        <div class="brand">Student Portal</div>
+        <div class="brand-sub">Admin</div>
+        <nav>
+            <a href="dashboard.php" class="active">Daftar Mahasiswa</a>
+            <a href="add_student.php">Tambah Mahasiswa</a>
+            <a href="add_course.php">Tambah Mata Kuliah</a>
+        </nav>
+        <div class="spacer"></div>
+        <a class="logout-link" href="../logout.php">Keluar &rarr;</a>
+    </aside>
+
+    <main class="main">
+        <div class="topbar">
+            <div>
+                <span class="eyebrow">Admin Panel</span>
+                <h1>Daftar Mahasiswa</h1>
+            </div>
+            <a href="add_student.php" class="btn">+ Tambah Mahasiswa</a>
+        </div>
+
+        <div class="stat-grid">
+            <div class="stat"><div class="label">Total Mahasiswa</div><div class="value">{{ statistics.total_mahasiswa }}</div></div>
+            <div class="stat"><div class="label">Mata Kuliah Terdaftar</div><div class="value">{{ statistics.total_mk }}</div></div>
+            <div class="stat"><div class="label">Total Entri Nilai</div><div class="value">{{ statistics.total_nilai }}</div></div>
+        </div>
+
+        <div class="card">
+            <form method="get" style="margin-bottom:16px;display:flex;gap:10px;align-items:flex-end;">
+                <div style="flex:1">
+                    <label for="q">Cari nama / NIM</label>
+                    <input type="text" id="q" name="q" value="" placeholder="Contoh: Siti / 2210101001" style="margin-bottom:0">
+                </div>
+                <button type="submit" class="btn-outline" style="background:transparent;border:1px solid var(--pine);color:var(--pine);height:42px;">Cari</button>
+            </form>
+
+            <table>
+            <thead>
+                <tr><th>NIM</th><th>Nama</th><th>Program Studi</th><th></th></tr>
+            </thead>
+            <tbody>
+                {% for student in students %}
+                <tr>
+                    <td class="mono">{{ student.nim }}</td>
+                    <td> {{ student.nama }} </td>
+                    <td> {{ student.program_studi }} </td>
+                    <td><a href="{{ url_for('student_detail', nim=student.nim) }}">Lihat KRS</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+</body>
+</html>

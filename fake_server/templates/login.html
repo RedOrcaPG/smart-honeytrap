@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Masuk — Student Portal</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
+
+</head>
+
+<body>
+
+<div class="login-shell">
+
+    <div class="login-side">
+
+        <div class="mark">
+            Student Portal
+        </div>
+
+        <p>
+            Satu tempat untuk memantau progres akademik:
+            mata kuliah yang telah diselesaikan,
+            nilai,
+            dan riwayat studi.
+        </p>
+
+    </div>
+
+    <div class="login-form-wrap">
+
+        <div class="login-card">
+
+            <span class="eyebrow">
+                Masuk
+            </span>
+
+            <h1>
+                Selamat datang kembali
+            </h1>
+
+            <div class="sub">
+                Masukkan kredensial Anda untuk melanjutkan.
+            </div>
+
+            {% if error %}
+
+            <div class="alert alert-err">
+
+                {{ error }}
+
+            </div>
+
+            {% endif %}
+
+            <form method="POST">
+
+                <label for="username">
+                    Username
+                </label>
+
+                <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    value="{{ username }}"
+                    autofocus
+                    required
+                >
+
+                <label for="password">
+                    Password
+                </label>
+
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    required
+                >
+
+                <button type="submit">
+
+                    Masuk
+
+                </button>
+
+            </form>
+
+            <div class="hint">
+
+                Sistem Informasi Akademik
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

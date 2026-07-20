@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KRS - {{ mhs.nama }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
+</head>
+
+<body>
+<div class="app-shell">
+    <main class="main">
+        <div class="topbar">
+            <div>
+                <span class="eyebrow">Kartu Rancangan Studi</span>
+                <h1>{{ mhs.nama }}</h1>
+            </div>
+            <a href="{{ url_for('dashboard') }}" class="btn-outline" style="background:transparent;border:1px solid var(--pine);color:var(--pine);">&larr; Kembali</a>
+        </div>
+
+        <div class="card">
+            <table style="width:auto;">
+                <tbody>
+                    <tr>
+                        <td style="border:none;padding:6px 24px 6px 0;color:var(--ink-soft);font-weight:600;">Program Studi</td>
+                        <td style="border:none;padding:6px 0;">{{ mhs.program_studi }}</td>
+                    </tr>
+                    <tr>
+                        <td style="border:none;padding:6px 24px 6px 0;color:var(--ink-soft);font-weight:600;">Angkatan</td>
+                        <td style="border:none;padding:6px 0;" class="mono">{{ mhs.angkatan }}</td>
+                    </tr>
+                    <tr>
+                        <td style="border:none;padding:6px 24px 6px 0;color:var(--ink-soft);font-weight:600;">Status</td>
+                        <td style="border:none;padding:6px 0;">{{ mhs.status }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="stat-grid">
+            <div class="stat">
+                <div class="label">IPK</div>
+                <div class="value">{{ mhs.ipk }}</div>
+            </div>
+            <div class="stat">
+                <div class="label">Total Mata Kuliah</div>
+                <div class="value">{{ mhs.courses|length }}</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Daftar Mata Kuliah</h2>
+            {% if not mhs.courses %}
+            <p style="color:var(--ink-soft)">Belum ada mata kuliah yang diambil.</p>
+            {% else %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Mata Kuliah</th>
+                        <th>Nilai</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for course in mhs.courses %}
+                    <tr>
+                        <td>{{ course.nama }}</td>
+                        <td>
+                            <span class="grade-pill{% if course.nilai in ['D', 'E'] %} low{% endif %}">{{ course.nilai }}</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+        </div>
+    </main>
+</div>
+</body>
+</html>

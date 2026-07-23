@@ -36,7 +36,7 @@ class SmartHoneyTrap:
         self.config = DETECTION_CONFIG
         self.nfqueue_config = NFQUEUE_CONFIG
 
-        #Detection Pipline
+        # Detection Pipline
         self.parser = PacketParser()
         self.tracker = FlowTracker()
         self.extractor = FeatureExtractor()
@@ -52,13 +52,25 @@ class SmartHoneyTrap:
         
         packet = self.parser.parse(raw_packet)
         self.tracker.add_packet(packet)
-        self.analyze_completed_flows()
-    
+        self.analyze_completed_flows(packet.timestamp)
+
+    def analyze_completed_flows(
+        self,
+        current_time: float
+    ) -> None:
+
+        completed_flows = self.tracker.get_completed_flows(current_time)
+
+        for flow in completed_flows:
+            feature = self.extractor.extract(flow)
+            result = self.detector.detect(feature)
+            self.logger.save_detection(flow, result)
+
     def packet_callback(
         self,
         packet
     ) -> None:
-        
+
         try:
             self.process_packet(
                 packet.get_payload()
@@ -72,7 +84,7 @@ class SmartHoneyTrap:
         queue = NetfilterQueue()
 
         queue.bind(
-            self.nfqueue_config ["queue_number"],
+            self.nfqueue_config["queue_number"],
             self.packet_callback
         )
 

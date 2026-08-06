@@ -10,7 +10,7 @@ from typing import NamedTuple
 
 from config import DETECTION_CONFIG
 
-from detector.feature_extractor import Feature
+from detector.models import SourceActivity
 from detector.detection_result import DetectionResult
 
 
@@ -39,47 +39,30 @@ class DDoSDetector:
 
     RULES = (
 
-        DetectionRule(
+    DetectionRule(
+        feature="flow_count",
+        threshold="flow_count_threshold",
+        weight="flow_count_weight"
+    ),
 
-            feature="packet_rate",
+    DetectionRule(
+        feature="packet_count",
+        threshold="packet_count_threshold",
+        weight="packet_count_weight"
+    ),
 
-            threshold="packet_threshold",
+    DetectionRule(
+        feature="http_request_count",
+        threshold="http_request_threshold",
+        weight="http_request_weight"
+    ),
 
-            weight="packet_weight"
-
-        ),
-
-        DetectionRule(
-
-            feature="byte_rate",
-
-            threshold="byte_threshold",
-
-            weight="byte_weight"
-
-        ),
-
-        DetectionRule(
-
-            feature="syn_count",
-
-            threshold="syn_threshold",
-
-            weight="syn_weight"
-
-        ),
-
-        DetectionRule(
-
-            feature="http_request_count",
-
-            threshold="http_threshold",
-
-            weight="http_weight"
-
-        )
-
+    DetectionRule(
+        feature="syn_count",
+        threshold="syn_threshold",
+        weight="syn_weight"
     )
+)
 
     def __init__(self):
 
@@ -91,10 +74,10 @@ class DDoSDetector:
 
     def detect(
         self,
-        feature: Feature
+        activity: SourceActivity
     ) -> DetectionResult:
 
-        score, triggered_rules = self._calculate_score(feature)
+        score, triggered_rules = self._calculate_score(activity)
 
         decision = self._make_decision(score)
 
@@ -106,7 +89,7 @@ class DDoSDetector:
 
             triggered_rules=tuple(sorted(triggered_rules)),
 
-            feature=feature
+            activity=activity
 
         )
 
@@ -116,7 +99,7 @@ class DDoSDetector:
 
     def _calculate_score(
         self,
-        feature: Feature
+        activity: SourceActivity
     ) -> tuple[int, set[str]]:
 
         score = 0
@@ -127,7 +110,7 @@ class DDoSDetector:
 
         for rule in self.RULES:
 
-            value = getattr(feature, rule.feature)
+            value = getattr(activity, rule.feature)
 
             if value >= config[rule.threshold]:
 

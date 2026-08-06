@@ -10,7 +10,7 @@ from typing import Tuple
 # Import Local Module
 # ==========================================================
 
-from detector.feature_extractor import Feature
+from detector.source_activity_tracker import SourceActivity
 
 
 # ==========================================================
@@ -29,5 +29,5 @@ class DetectionResult:
     # Triggered Detection Rules
     triggered_rules: Tuple[str, ...]
 
-    # Evaluated Feature
-    feature: Feature
+    # Evaluated Activity
+    activity: SourceActivity

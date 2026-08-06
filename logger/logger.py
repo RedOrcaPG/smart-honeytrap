@@ -12,6 +12,7 @@ from datetime import datetime
 # Import Third Party Library
 # ==========================================================
 
+import mariadb
 import json
 
 # ==========================================================
@@ -21,9 +22,7 @@ import json
 class Logger:
 
     def __init__(self):
-
-        self.db = DatabaseConnection()
-        self.db.connect()
+        pass
 
 
     def save_http(self, log_entry: LogEntry):
@@ -66,11 +65,18 @@ class Logger:
         )
         self._execute(query, values)
 
-    def save_detection(self, flow: Flow, result: DetectionResult):
-        if not flow.packets:
-            return
+    def save_detection(
+        self,  
+        result: DetectionResult
+        ):
 
-        packet = flow.packets[0]
+        flow = result.activity.representative_flow
+
+        try:
+            packet = flow.first_packet
+        except ValueError:
+            return
+        
         query = """
             INSERT INTO detection_logs
             (
@@ -81,13 +87,13 @@ class Logger:
                 dst_port,
                 protocol,
                 duration,
+                flow_count,
                 packet_count,
-                byte_count,
-                packet_rate,
-                byte_rate,
-                average_packet_size,
-                syn_count,
                 http_request_count,
+                syn_count,
+                flow_rate,
+                packet_rate,
+                request_rate,
                 score,
                 decision,
                 triggered_rules
@@ -107,14 +113,14 @@ class Logger:
             packet.src_port,
             packet.dst_port,
             packet.protocol,
-            result.feature.duration,
-            flow.packet_count,
-            flow.byte_count,
-            result.feature.packet_rate,
-            result.feature.byte_rate,
-            result.feature.average_packet_size,
-            result.feature.syn_count,
-            result.feature.http_request_count,
+            result.activity.duration,
+            result.activity.flow_count,
+            result.activity.packet_count,
+            result.activity.http_request_count,
+            result.activity.syn_count,
+            result.activity.flow_rate,
+            result.activity.packet_rate,
+            result.activity.request_rate,
             result.score,
             result.decision,
             json.dumps(result.triggered_rules, ensure_ascii=False)
@@ -122,10 +128,23 @@ class Logger:
         self._execute(query, values)
 
     def _execute(self, query, values):
-        cursor = self.db.cursor()
-        cursor.execute(query, values)
-        self.db.commit()
+        connection = DatabaseConnection()
+        cursor = None
 
-        
-    def close(self):
-        self.db.close()
+        try:
+            connection.connect()
+
+            cursor = connection.cursor()
+            cursor.execute(query, values)
+
+            connection.commit()
+
+        except mariadb.Error:
+            connection.rollback()
+            raise
+
+        finally:
+            if cursor is not None:
+                cursor.close()
+
+            connection.close()
